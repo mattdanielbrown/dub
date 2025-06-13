@@ -24,7 +24,6 @@ import {
 } from "@dub/utils";
 import { formatPeriod } from "@dub/utils/src/functions/datetime";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import { Dispatch, Fragment, SetStateAction, useMemo, useState } from "react";
 import useSWR from "swr";
 import { CommissionTypeIcon } from "./comission-type-icon";
@@ -39,7 +38,6 @@ type PayoutDetailsSheetProps = {
 
 function PayoutDetailsSheetContent({ payout }: PayoutDetailsSheetProps) {
   const { id: workspaceId, slug } = useWorkspace();
-  const { programId } = useParams() as { programId: string };
   const { queryParams } = useRouterStuff();
 
   const {
@@ -62,7 +60,7 @@ function PayoutDetailsSheetContent({ payout }: PayoutDetailsSheetProps) {
     return {
       Partner: (
         <a
-          href={`/${slug}/programs/${programId}/partners?partnerId=${payout.partner.id}`}
+          href={`/${slug}/program/partners?partnerId=${payout.partner.id}`}
           target="_blank"
           className="group flex items-center gap-0.5"
         >
@@ -112,9 +110,12 @@ function PayoutDetailsSheetContent({ payout }: PayoutDetailsSheetProps) {
         maxSize: 240,
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            {row.original.type === "click" ? (
+            {["click", "custom"].includes(row.original.type) ? (
               <div className="flex size-6 items-center justify-center rounded-full bg-neutral-100">
-                <CommissionTypeIcon type="click" className="size-4" />
+                <CommissionTypeIcon
+                  type={row.original.type}
+                  className="size-4"
+                />
               </div>
             ) : (
               <img
@@ -131,7 +132,9 @@ function PayoutDetailsSheetContent({ payout }: PayoutDetailsSheetProps) {
               <span className="w-44 truncate text-sm text-neutral-700">
                 {row.original.type === "click"
                   ? `${row.original.quantity} ${pluralize("click", row.original.quantity)}`
-                  : row.original.customer.email || row.original.customer.name}
+                  : row.original.customer
+                    ? row.original.customer.email || row.original.customer.name
+                    : "Custom commission"}
               </span>
               <span className="text-xs text-neutral-500">
                 {formatDateTime(row.original.createdAt)}
@@ -185,7 +188,7 @@ function PayoutDetailsSheetContent({ payout }: PayoutDetailsSheetProps) {
 
   const ViewAllPayoutsLink = () => (
     <Link
-      href={`/${slug}/programs/${programId}/commissions?payoutId=${payout.id}&interval=all`}
+      href={`/${slug}/program/commissions?payoutId=${payout.id}&interval=all`}
       target="_blank"
       className={cn(
         buttonVariants({ variant: "secondary" }),
