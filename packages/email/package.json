@@ -11,7 +11,7 @@
     "@dub/utils": "workspace:*",
     "@react-email/components": "^0.0.22",
     "lucide-react": "^0.462.0",
-    "nodemailer": "^6.9.3",
+    "nodemailer": "^7.0.7",
     "react-email": "^2.1.6",
     "resend": "^6.1.2"
   },
