@@ -368,7 +368,7 @@ export const PLANS: PlanDetails[] = [
       folders: 50,
       groups: INFINITY_NUMBER,
       networkInvites: 0,
-      partners: 5_000,
+      partners: INFINITY_NUMBER,
       users: 20,
       ai: 1_000,
       api: 3_000,

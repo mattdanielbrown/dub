@@ -56,6 +56,7 @@ export const bulkApprovePartnersAction = authActionClient
             id: {
               in: programEnrollments.map(({ id }) => id),
             },
+            status: "pending",
           },
           data: {
             status: "approved",
