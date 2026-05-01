@@ -200,8 +200,8 @@ function SwitchTrialPlanModal({
             setIsSubmitting(true);
             try {
               await onConfirm();
-            } finally {
               setShowModal(false);
+            } finally {
               setIsSubmitting(false);
             }
           }}
