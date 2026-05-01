@@ -14,12 +14,12 @@ export function PartnersUpgradeCTA({
   title?: string;
   description?: string;
 }) {
-  const { slug, plan, store, payoutsLimit } = useWorkspace();
+  const { slug, plan, store, partnersLimit } = useWorkspace();
 
   const { canManageProgram } = getPlanCapabilities(plan);
 
   const { cta, href } = useMemo(() => {
-    if (!canManageProgram || isLegacyBusinessPlan({ plan, payoutsLimit })) {
+    if (!canManageProgram || isLegacyBusinessPlan({ plan, partnersLimit })) {
       return {
         cta: "Upgrade plan",
         href: `/${slug}/upgrade?plan=business`,
@@ -30,7 +30,7 @@ export function PartnersUpgradeCTA({
         href: `/${slug}/program/new`,
       };
     }
-  }, [canManageProgram, slug, payoutsLimit]);
+  }, [canManageProgram, slug, partnersLimit]);
 
   return (
     <div className="flex min-h-[calc(100vh-60px)] flex-col items-center justify-center gap-6 overflow-hidden px-4 py-10">

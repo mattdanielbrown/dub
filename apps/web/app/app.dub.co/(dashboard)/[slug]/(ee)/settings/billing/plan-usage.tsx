@@ -268,7 +268,7 @@ export default function PlanUsage() {
         <div className="flex flex-col items-start justify-between gap-y-4 p-6 md:px-8 lg:flex-row">
           <div>
             <h2 className="text-xl font-medium">
-              {plan && isLegacyBusinessPlan({ plan, payoutsLimit })
+              {plan && isLegacyBusinessPlan({ plan, partnersLimit })
                 ? "Business (Legacy)"
                 : capitalize(plan)}{" "}
               Plan

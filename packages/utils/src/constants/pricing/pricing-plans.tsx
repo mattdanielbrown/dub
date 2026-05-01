@@ -651,8 +651,8 @@ export const getSuggestedPlan = ({
 
 export const isLegacyBusinessPlan = ({
   plan = "business",
-  payoutsLimit = 0,
+  partnersLimit = 0,
 }: {
   plan?: string;
-  payoutsLimit?: number;
-}) => plan === "business" && payoutsLimit === 0;
+  partnersLimit?: number;
+}) => plan === "business" && partnersLimit === 0;

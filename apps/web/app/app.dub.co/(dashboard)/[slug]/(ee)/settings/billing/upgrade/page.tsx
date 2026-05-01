@@ -58,7 +58,7 @@ export default function WorkspaceBillingUpgradePage() {
     planTier: currentPlanTier = 1,
     planPeriod: currentPlanPeriod,
     stripeId,
-    payoutsLimit,
+    partnersLimit,
     trialEndsAt,
   } = useWorkspace();
 
@@ -168,7 +168,7 @@ export default function WorkspaceBillingUpgradePage() {
                     planTier === currentPlanTier &&
                     !isLegacyBusinessPlan({
                       plan: currentPlan,
-                      payoutsLimit,
+                      partnersLimit,
                     }),
                 );
                 const isCurrentPlanAndPeriod =
