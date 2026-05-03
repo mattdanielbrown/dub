@@ -62,13 +62,12 @@ export function ApplicationsMenuPopover() {
               <Link
                 href={`/${workspaceSlug}/program/analytics/applications${getQueryString(undefined, { include: ["country"] })}`}
                 onClick={() => setOpenPopover(false)}
+                className="w-full rounded-md p-2 hover:bg-neutral-100 active:bg-neutral-200"
               >
-                <button className="w-full rounded-md p-2 hover:bg-neutral-100 active:bg-neutral-200">
-                  <IconMenu
-                    text="View analytics"
-                    icon={<ChartLine className="size-4" />}
-                  />
-                </button>
+                <IconMenu
+                  text="View analytics"
+                  icon={<ChartLine className="size-4" />}
+                />
               </Link>
             </div>
 

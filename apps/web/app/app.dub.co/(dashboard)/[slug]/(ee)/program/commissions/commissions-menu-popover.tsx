@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useCreateClawbackSheet } from "./create-clawback-sheet";
 
-export function CommmissionsMenuPopover() {
+export function CommissionsMenuPopover() {
   const [openPopover, setOpenPopover] = useState(false);
   const { slug } = useWorkspace();
   const { getQueryString } = useRouterStuff();
@@ -61,13 +61,12 @@ export function CommmissionsMenuPopover() {
                     ],
                   },
                 )}`}
+                className="w-full rounded-md p-2 hover:bg-neutral-100 active:bg-neutral-200"
               >
-                <button className="w-full rounded-md p-2 hover:bg-neutral-100 active:bg-neutral-200">
-                  <IconMenu
-                    text="View analytics"
-                    icon={<ChartLine className="size-4" />}
-                  />
-                </button>
+                <IconMenu
+                  text="View analytics"
+                  icon={<ChartLine className="size-4" />}
+                />
               </Link>
             </div>
 
