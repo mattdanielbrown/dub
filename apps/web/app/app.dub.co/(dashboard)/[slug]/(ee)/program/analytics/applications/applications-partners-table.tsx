@@ -1,8 +1,7 @@
 "use client";
 
-import useCommissionAnalytics from "@/lib/swr/use-commission-analytics";
-import { CommissionAnalyticsPartnerRow } from "@/lib/types";
-import { CountryFlag } from "@/ui/shared/country-flag";
+import { APPLICATION_EVENT_STAGES } from "@/lib/application-events/schema";
+import { STAGE_VALUE_KEY } from "@/lib/application-events/utils";
 import {
   Button,
   Table,
@@ -11,20 +10,17 @@ import {
   useRouterStuff,
   useTable,
 } from "@dub/ui";
-import { cn, COUNTRIES, currencyFormatter } from "@dub/utils";
+import { capitalize, cn, nFormatter } from "@dub/utils";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
-import { PartnerAnalyticsFilterCell } from "./partner-analytics-filter-cell";
+import { PartnerAnalyticsFilterCell } from "../partner-analytics-filter-cell";
+import { useApplicationsAnalytics } from "./use-applications-analytics";
 
 const PAGE_SIZE = 10;
 
-export function CommissionsPartnersTable({
-  queryString,
-}: {
-  queryString: string;
-}) {
-  const { queryParams, searchParams } = useRouterStuff();
+export function ApplicationsPartnersTable() {
   const { pagination, setPagination } = usePagination(PAGE_SIZE);
+  const { queryParams, searchParams } = useRouterStuff();
 
   const [stagedPartnerIds, setStagedPartnerIds] = useState<string[] | null>(
     null,
@@ -51,17 +47,22 @@ export function CommissionsPartnersTable({
   );
 
   const applyFilter = useCallback(() => {
-    if (!stagedPartnerIds || stagedPartnerIds.length === 0) return;
+    if (!stagedPartnerIds || stagedPartnerIds.length === 0) {
+      return;
+    }
+
     queryParams({
       set: { partnerId: stagedPartnerIds.join(",") },
       del: "page",
       scroll: false,
     });
+
     setStagedPartnerIds(null);
   }, [queryParams, stagedPartnerIds]);
 
   const clearFilter = useCallback(() => {
     setStagedPartnerIds(null);
+
     if (searchParams.has("partnerId")) {
       queryParams({ del: ["partnerId", "page"], scroll: false });
     }
@@ -72,44 +73,35 @@ export function CommissionsPartnersTable({
     priority: 2,
   });
 
-  const {
-    data: allPartners,
-    isLoading,
-    error,
-  } = useCommissionAnalytics({
-    queryString,
+  const { data, error, isLoading } = useApplicationsAnalytics({
     groupBy: "partnerId",
   });
 
-  const pageData = useMemo(
-    () =>
-      allPartners?.slice(
-        (pagination.pageIndex - 1) * PAGE_SIZE,
-        pagination.pageIndex * PAGE_SIZE,
-      ),
-    [allPartners, pagination.pageIndex],
-  );
-
-  const { table, ...tableProps } = useTable<CommissionAnalyticsPartnerRow>({
-    data: pageData ?? [],
+  const { table, ...tableProps } = useTable({
+    data: data ?? [],
     columns: [
       {
         id: "partner",
-        header: "Partner",
+        header: "Referral partner",
         enableHiding: false,
         minSize: 220,
         cell: ({ row }) => {
-          const { partnerId, name, image } = row.original;
+          const partner = row.original.partner;
+
+          if (!partner) {
+            return <span className="text-neutral-400">—</span>;
+          }
+
           return (
             <PartnerAnalyticsFilterCell
-              partner={{ id: partnerId, name, image }}
-              partnerId={partnerId}
-              isStaged={stagedPartnerIds?.includes(partnerId) ?? false}
-              isApplied={activePartnerIdsFromUrl.includes(partnerId)}
-              onToggle={() => toggleStagePartner(partnerId)}
+              partner={partner}
+              partnerId={partner.id}
+              isStaged={stagedPartnerIds?.includes(partner.id) ?? false}
+              isApplied={activePartnerIdsFromUrl.includes(partner.id)}
+              onToggle={() => toggleStagePartner(partner.id)}
               onApplyImmediate={() => {
                 queryParams({
-                  set: { partnerId },
+                  set: { partnerId: partner.id },
                   del: "page",
                   scroll: false,
                 });
@@ -119,41 +111,30 @@ export function CommissionsPartnersTable({
           );
         },
       },
-      {
-        id: "location",
-        header: "Location",
-        minSize: 140,
+      ...APPLICATION_EVENT_STAGES.map((stage) => ({
+        id: stage,
+        header: capitalize(STAGE_VALUE_KEY[stage]) as string,
+        minSize: 160,
         cell: ({ row }) => {
-          const { country } = row.original;
-          if (!country) return <span className="text-neutral-400">—</span>;
-          return (
-            <div className="flex items-center gap-2">
-              <CountryFlag countryCode={country} />
-              <span className="min-w-0 truncate text-sm text-neutral-700">
-                {COUNTRIES[country] ?? country}
-              </span>
-            </div>
-          );
+          const value = row.original[STAGE_VALUE_KEY[stage]];
+          return <span>{nFormatter(value)}</span>;
         },
-      },
-      {
-        id: "commission",
-        header: "Commission",
-        accessorFn: (d) => currencyFormatter(d.earnings),
-      },
+      })),
     ],
     pagination,
     onPaginationChange: setPagination,
-    sortBy: "commission",
     thClassName: "border-l-0",
     tdClassName: "border-l-0",
-    resourceName: (p) => `partner${p ? "s" : ""}`,
-    rowCount: allPartners?.length ?? 0,
+    rowCount: data?.length ?? 0,
     loading: isLoading,
     error: error ? "Failed to load partners" : undefined,
   });
 
   const showFloatingBar = stagedPartnerIds !== null || isFilterActive;
+
+  if (data && data.length === 0) {
+    return null; // hide section if no partner-driven data
+  }
 
   return (
     <div className={cn("relative", isLoading && "pointer-events-none")}>
