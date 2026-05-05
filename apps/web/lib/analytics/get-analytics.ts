@@ -70,8 +70,8 @@ export const getAnalytics = async (params: AnalyticsFilters) => {
           : `SUM(${event}) as ${event}`;
 
     const response = await conn.execute(
-      `SELECT ${aggregateColumns} FROM Link WHERE id IN (${linkIdPlaceholders})`,
-      normalizedLinkId.values,
+      `SELECT ${aggregateColumns} FROM Link WHERE id IN (${linkIdPlaceholders}) AND projectId = ?`,
+      [...normalizedLinkId.values, workspaceId],
     );
 
     return analyticsResponse["count"].parse(response.rows[0]);
