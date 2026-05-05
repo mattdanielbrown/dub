@@ -79,8 +79,8 @@ const partnersColumns = {
   all: [
     "partner",
     "group",
-    "createdAt",
     "tags",
+    "createdAt",
     "status",
     "location",
     "totalClicks",
@@ -166,7 +166,7 @@ export function PartnersTable() {
   const { groups } = useGroups();
 
   const { columnVisibility, setColumnVisibility } = useColumnVisibility(
-    "partners-table-columns-v2",
+    "partners-table-columns-v3",
     partnersColumns,
   );
 
