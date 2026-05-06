@@ -11,6 +11,7 @@ import useWorkspace from "@/lib/swr/use-workspace";
 import { DiscountProps } from "@/lib/types";
 import { createDiscountSchema } from "@/lib/zod/schemas/discount";
 import { RECURRING_MAX_DURATIONS } from "@/lib/zod/schemas/misc";
+import { Shopify } from "@/ui/guides/icons/shopify";
 import { X } from "@/ui/shared/icons";
 import {
   InlineBadgePopover,
@@ -18,7 +19,7 @@ import {
 } from "@/ui/shared/inline-badge-popover";
 import { UpgradeRequiredToast } from "@/ui/shared/upgrade-required-toast";
 import { DiscountProvider } from "@dub/prisma/client";
-import { Button, InfoTooltip, Sheet, Switch } from "@dub/ui";
+import { Button, InfoTooltip, Sheet, Switch, useRouterStuff } from "@dub/ui";
 import { CircleCheckFill, StripeIcon, Tag } from "@dub/ui/icons";
 import { capitalize, cn, pluralize } from "@dub/utils";
 import { useAction } from "next-safe-action/hooks";
@@ -424,7 +425,11 @@ function DiscountSheetContent({
             )}
             title={
               <>
-                <StripeIcon className="size-7" />
+                {provider === DiscountProvider.shopify ? (
+                  <Shopify className="h-7 w-auto" />
+                ) : (
+                  <StripeIcon className="size-7" />
+                )}
                 <span className="leading-relaxed">
                   Discount a{" "}
                   <InlineBadgePopover
@@ -639,8 +644,15 @@ export function DiscountSheet({
   isOpen: boolean;
   nested?: boolean;
 }) {
+  const { queryParams } = useRouterStuff();
+
   return (
-    <Sheet open={isOpen} onOpenChange={rest.setIsOpen} nested={nested}>
+    <Sheet
+      open={isOpen}
+      onOpenChange={rest.setIsOpen}
+      nested={nested}
+      onClose={() => queryParams({ del: "discountId", scroll: false })}
+    >
       <DiscountSheetContent {...rest} />
     </Sheet>
   );
