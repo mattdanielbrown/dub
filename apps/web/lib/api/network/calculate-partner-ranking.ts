@@ -49,7 +49,7 @@ export async function calculatePartnerRanking({
   similarPrograms = [],
 }: PartnerRankingParams) {
   const conditions: Prisma.Sql[] = [
-    Prisma.sql`p.discoverableAt IS NOT NULL`,
+    Prisma.sql`p.networkStatus IN ("approved", "trusted")`,
     Prisma.sql`COALESCE(pe.clickToConversionRate, 0) < 1`,
     Prisma.sql`(dp.ignoredAt IS NULL OR dp.id IS NULL)`,
     Prisma.sql`enrolled.id IS NULL`,
@@ -131,7 +131,7 @@ export async function calculatePartnerRanking({
   // This dramatically reduces the dataset from 1.5M to 5,000 before expensive joins
   const buildDiscoverablePartnersFilter = (alias: string) => {
     const conditions: Prisma.Sql[] = [
-      Prisma.sql`${Prisma.raw(alias)}.discoverableAt IS NOT NULL`,
+      Prisma.sql`${Prisma.raw(alias)}.networkStatus IN ("approved", "trusted")`,
     ];
 
     if (partnerIds && partnerIds.length > 0) {

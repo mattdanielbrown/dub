@@ -68,7 +68,7 @@ export function NetworkPartnerApplicationSheet({
     setShowConfirmModal: setShowApproveConfirm,
     confirmModal: approveModal,
   } = useConfirmModal({
-    title: "Approve network application",
+    title: "Approve network profile",
     description: PartnerDetails,
     confirmText: "Approve",
     onConfirm: async () => {
@@ -82,7 +82,7 @@ export function NetworkPartnerApplicationSheet({
     setShowConfirmModal: setShowRejectConfirm,
     confirmModal: rejectModal,
   } = useConfirmModal({
-    title: "Reject network application",
+    title: "Reject network profile",
     description: PartnerDetails,
     confirmText: "Reject",
     confirmVariant: "danger",
@@ -115,12 +115,12 @@ export function NetworkPartnerApplicationSheet({
 
   useKeyboardShortcut("a", () => setShowApproveConfirm(true), {
     sheet: true,
-    enabled: !["rejected", "trusted"].includes(partner.networkStatus),
+    enabled: !["approved", "trusted"].includes(partner.networkStatus),
   });
 
   useKeyboardShortcut("r", () => setShowRejectConfirm(true), {
     sheet: true,
-    enabled: !["approved", "trusted"].includes(partner.networkStatus),
+    enabled: !["rejected", "trusted"].includes(partner.networkStatus),
   });
 
   return (
@@ -137,7 +137,7 @@ export function NetworkPartnerApplicationSheet({
       <div className="flex size-full flex-col">
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-neutral-200 px-6 py-4">
           <Sheet.Title className="text-lg font-semibold">
-            Network application
+            Network profile
           </Sheet.Title>
           <div className="flex items-center gap-4">
             <div className="flex items-center">
