@@ -1,5 +1,5 @@
-import { anthropic } from "@ai-sdk/anthropic";
 import { withAdmin } from "@/lib/auth";
+import { anthropic } from "@ai-sdk/anthropic";
 import { prisma } from "@dub/prisma";
 import { Category } from "@dub/prisma/client";
 import FireCrawlApp from "@mendable/firecrawl-js";
@@ -11,10 +11,8 @@ const addProgramSchema = z.object({
   programSlug: z.string().trim().min(1),
 });
 
-const CategoryEnum = z.enum(Category);
 const categorizationSchema = z.object({
-  categories: z.array(CategoryEnum).min(1).max(3),
-  reasoning: z.string(),
+  categories: z.array(z.enum(Category)).min(1).max(3),
 });
 
 async function scrapeWebsite(url: string, firecrawl: FireCrawlApp) {
@@ -40,52 +38,20 @@ async function scrapeWebsite(url: string, firecrawl: FireCrawlApp) {
 async function categorizeProgram({
   programName,
   url,
-  content,
   title,
   description,
 }: {
   programName: string;
   url: string;
-  content: string;
   title: string;
   description: string;
 }) {
   const prompt = `Analyze this website and categorize it into 1-3 most relevant categories.
-
-IMPORTANT: You must select categories from this EXACT list (case-sensitive):
-- Artificial_Intelligence
-- Development
-- Design
-- Productivity
-- Finance
-- Marketing
-- Ecommerce
-- Security
-- Education
-- Health
-- Consumer
-- Support
-
-Category descriptions:
-- Artificial_Intelligence: AI/ML tools, chatbots, automation, machine learning platforms
-- Development: Code tools, APIs, developer platforms, programming resources
-- Design: Design tools, UI/UX, creative software, graphics
-- Productivity: Task management, collaboration, workflow tools, organization
-- Finance: Financial services, payments, accounting, investment, banking
-- Marketing: Marketing tools, analytics, advertising, social media, SEO
-- Ecommerce: Online stores, commerce platforms, marketplaces, retail
-- Security: Cybersecurity, privacy, protection tools, data security
-- Education: Learning platforms, courses, educational content, training
-- Health: Healthcare, fitness, wellness apps, medical services
-- Consumer: General consumer products/services that don't fit other categories
-- Support: Support tools, help desks, customer support, troubleshooting, customer service
-
 Website information:
 Name: ${programName}
 Website URL: ${url}
 Page Title: ${title}
-Meta Description: ${description}
-Website Content Preview: ${content.slice(0, 300)}...`;
+Meta Description: ${description}`;
 
   const { output } = await generateText({
     model: anthropic("claude-sonnet-4-6"),
@@ -93,6 +59,7 @@ Website Content Preview: ${content.slice(0, 300)}...`;
       schema: categorizationSchema,
     }),
     prompt,
+    temperature: 0.4,
   });
 
   return categorizationSchema.parse(output).categories;
@@ -171,7 +138,6 @@ export const POST = withAdmin(
     const categories = await categorizeProgram({
       programName: program.name,
       url: program.url,
-      content: scraped.content,
       title: scraped.title,
       description: scraped.description,
     }).catch(() => [] as Category[]);

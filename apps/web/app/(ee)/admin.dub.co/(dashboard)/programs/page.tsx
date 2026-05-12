@@ -102,26 +102,20 @@ export default function AdminProgramsPage() {
         )
         .map((program) => program.id),
     );
-
-    const rankedInCurrentOrder: string[] = [];
-    let seenOriginalRankedProgram = false;
-
-    for (let index = rankedOrderIds.length - 1; index >= 0; index--) {
-      const programId = rankedOrderIds[index]!;
-      const isOriginalRankedProgram = originalRankedProgramIds.has(programId);
-      if (isOriginalRankedProgram) {
-        seenOriginalRankedProgram = true;
-      }
-      if (seenOriginalRankedProgram) {
-        rankedInCurrentOrder.push(programId);
+    let lastRankedIndexInCurrentOrder = -1;
+    for (let index = 0; index < rankedOrderIds.length; index++) {
+      if (originalRankedProgramIds.has(rankedOrderIds[index]!)) {
+        lastRankedIndexInCurrentOrder = index;
       }
     }
 
-    rankedInCurrentOrder.reverse();
-
-    const rankingByProgramId = new Map(
-      rankedInCurrentOrder.map((programId, index) => [programId, index + 1]),
-    );
+    const rankingByProgramId = new Map<string, number>();
+    if (lastRankedIndexInCurrentOrder >= 0) {
+      let ranking = 1;
+      for (let index = 0; index <= lastRankedIndexInCurrentOrder; index++) {
+        rankingByProgramId.set(rankedOrderIds[index]!, ranking++);
+      }
+    }
 
     const updates = rankedOrderIds
       .map((programId) => {
@@ -348,7 +342,7 @@ export default function AdminProgramsPage() {
         }}
       />
 
-      <div className="mx-auto flex w-full max-w-screen-xl flex-col gap-4 p-6 pb-28">
+      <div className="mx-auto flex w-full max-w-screen-xl flex-col gap-4 p-6 pb-12 pt-4">
         <div className="flex justify-end">
           <Button
             text="Add program"
@@ -421,7 +415,7 @@ export default function AdminProgramsPage() {
                   onClick={() => setRankedOrderIds(initialRankedOrderIds)}
                 />
                 <Button
-                  text="Save order changes"
+                  text="Save"
                   className="h-8"
                   loading={isSavingOrder}
                   onClick={saveOrderChanges}
