@@ -147,7 +147,8 @@ export async function checkoutSessionCompleted(
       reactivateProgram(updatedWorkspace.defaultProgramId),
     // If no programOnboarding data (Links trial), send TrialStartedEmail
     // For program trial we send it in create-program.ts
-    !updatedWorkspace.store?.["programOnboarding"] &&
+    subscription.status === "trialing" &&
+      !updatedWorkspace.store?.["programOnboarding"] &&
       sendBatchEmail(
         users.map((user) => ({
           to: user.email as string,
