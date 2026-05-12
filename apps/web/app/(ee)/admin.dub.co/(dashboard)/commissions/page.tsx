@@ -214,21 +214,27 @@ function CommissionsPageClient() {
                         year: "numeric",
                       }).format(new Date(row.original.addedToMarketplaceAt))}
                     </p>
+                    <p className="mt-2 text-xs font-medium text-teal-700">
+                      Click to open listing ↗
+                    </p>
                   </div>
                 }
               >
-                <span
+                <a
+                  href={`https://partners.dub.co/programs/marketplace/${row.original.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={cn(
-                    "ml-1 inline-flex size-6 shrink-0 cursor-default items-center justify-center rounded-md",
+                    "ml-1 inline-flex size-6 shrink-0 items-center justify-center rounded-md",
                     "border border-teal-200/90 bg-gradient-to-br from-white to-teal-50/90",
                     "text-teal-700 shadow-sm ring-1 ring-inset ring-white",
-                    "transition-shadow duration-150 hover:shadow-md",
+                    "transition-[box-shadow,transform] duration-150 hover:shadow-md active:scale-[0.97]",
                     "outline-none focus-visible:ring-2 focus-visible:ring-teal-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-white",
                   )}
-                  aria-label="Listed on Dub Marketplace"
+                  aria-label={`View ${row.original.name} on Dub Marketplace (opens in new tab)`}
                 >
                   <Shop className="size-3.5 shrink-0" aria-hidden />
-                </span>
+                </a>
               </Tooltip>
             )}
           </div>

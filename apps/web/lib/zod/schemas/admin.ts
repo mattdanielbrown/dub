@@ -19,6 +19,7 @@ export const adminCommissionsDataSchema = z.object({
   programs: z.array(
     z.object({
       id: z.string(),
+      slug: z.string(),
       name: z.string(),
       url: z.string(),
       logo: z.string(),
