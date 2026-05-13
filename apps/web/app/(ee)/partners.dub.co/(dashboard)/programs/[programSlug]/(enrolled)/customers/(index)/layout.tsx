@@ -67,7 +67,7 @@ export default function PartnerCustomersLayout({
         count: customersCount,
       },
       {
-        label: "Leads",
+        label: "Submitted leads",
         id: "leads",
         href: "leads",
         info: "Shows your submitted leads.",
