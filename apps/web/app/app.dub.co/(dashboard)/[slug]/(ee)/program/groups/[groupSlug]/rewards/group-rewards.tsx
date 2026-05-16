@@ -12,6 +12,7 @@ import {
   RewardSheet,
   useRewardSheet,
 } from "@/ui/partners/rewards/add-edit-reward-sheet";
+import { REWARD_EVENT_DESCRIPTIONS } from "@/ui/partners/rewards/reward-event-descriptions";
 import { REWARD_EVENT_ICON } from "@/ui/partners/rewards/reward-event-icon";
 import { EventType } from "@dub/prisma/client";
 import {
@@ -24,28 +25,6 @@ import { cn, formatDate } from "@dub/utils";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const REWARD_EVENT_DESCRIPTIONS: Record<
-  EventType,
-  { title: string; description: string }
-> = {
-  sale: {
-    title: "Sale reward",
-    description: "Reward when revenue is generated",
-  },
-  lead: {
-    title: "Lead reward",
-    description: "Reward for sign ups or demos",
-  },
-  click: {
-    title: "Click reward",
-    description: "Reward for traffic and reach",
-  },
-  referral: {
-    title: "Partner referral reward",
-    description: "Reward when partners refer more partners",
-  },
-};
 
 export function GroupRewards() {
   const { group, loading } = useGroup();
@@ -262,7 +241,15 @@ const RewardItem = ({
                   {REWARD_EVENT_DESCRIPTIONS[event].title}
                 </span>
                 <span className="text-sm font-normal text-neutral-500">
-                  {REWARD_EVENT_DESCRIPTIONS[event].description}
+                  {REWARD_EVENT_DESCRIPTIONS[event].description}.{" "}
+                  <Link
+                    href={REWARD_EVENT_DESCRIPTIONS[event].learnMoreHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline decoration-neutral-400 decoration-dotted underline-offset-2 hover:text-neutral-600"
+                  >
+                    Learn more ↗
+                  </Link>
                 </span>
               </div>
             )}

@@ -162,7 +162,7 @@ function ReferralsStatItem({
           {isLoading ? (
             <span
               aria-hidden="true"
-              className="mt-0.5 block h-8 w-[4.75rem] animate-pulse rounded-md bg-neutral-200"
+              className="mt-2 block h-8 w-[4.75rem] animate-pulse rounded-md bg-neutral-200"
             />
           ) : (
             children

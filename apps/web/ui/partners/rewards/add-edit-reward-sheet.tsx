@@ -25,6 +25,7 @@ import {
 import { X } from "@/ui/shared/icons";
 import { EventType, RewardStructure } from "@dub/prisma/client";
 import {
+  BookOpen,
   Button,
   Gift,
   Grid,
@@ -36,7 +37,6 @@ import {
   useLocalStorage,
   useRouterStuff,
 } from "@dub/ui";
-import { CursorRays, InvoiceDollar, UserPlus } from "@dub/ui/icons";
 import { capitalize, cn, pluralize } from "@dub/utils";
 import { motion } from "motion/react";
 import { useAction } from "next-safe-action/hooks";
@@ -64,6 +64,7 @@ import {
 } from "../../shared/inline-badge-popover";
 import { RewardDiscountPartnersCard } from "../groups/reward-discount-partners-card";
 import { PartnerReferralRewardBuilder } from "./partner-referral-reward-builder";
+import { REWARD_EVENT_DESCRIPTIONS } from "./reward-event-descriptions";
 import { RewardIconSquare } from "./reward-icon-square";
 import { RewardPreviewCard } from "./reward-preview-card";
 import { REWARD_TYPES, RewardsLogic } from "./rewards-logic";
@@ -685,48 +686,19 @@ function RewardSheetContent({
   );
 }
 
-const REWARD_HELPER_CONTENT: Record<
-  EventType,
-  {
-    icon: typeof InvoiceDollar;
-    title: string;
-    description: string;
-  }
-> = {
-  sale: {
-    icon: InvoiceDollar,
-    title: "Sale rewards",
-    description:
-      "Reward when revenue is generated. Best for partners, creators, and long term partnerships.",
-  },
-  lead: {
-    icon: UserPlus,
-    title: "Lead rewards",
-    description:
-      "Reward for sign ups or demos. Best for B2B, demos, waitlists, or products with longer sales cycles.",
-  },
-  click: {
-    icon: CursorRays,
-    title: "Click rewards",
-    description:
-      "Reward for traffic and reach. Best for publishers with high DR sites and trusted partners only.",
-  },
-  referral: {
-    icon: UserPlus,
-    title: "Referral rewards",
-    description:
-      "Reward partners for referring other partners. Best for driving partner growth to your program.",
-  },
-};
-
 function RewardHelperBlock({ event }: { event: EventType }) {
   const [dismissed, setDismissed] = useLocalStorage<boolean>(
     `reward-helper-${event}-dismissed`,
     false,
   );
 
-  const content = REWARD_HELPER_CONTENT[event];
-  const Icon = content.icon;
+  const {
+    icon: Icon,
+    title,
+    description,
+    bestFor,
+    learnMoreHref,
+  } = REWARD_EVENT_DESCRIPTIONS[event];
 
   return (
     <motion.div
@@ -753,19 +725,30 @@ function RewardHelperBlock({ event }: { event: EventType }) {
           <Icon className="size-5 text-neutral-600" />
           <div className="flex flex-col pt-2">
             <span className="text-sm font-medium text-neutral-900">
-              {content.title}
+              {title}
             </span>
             <span className="text-sm text-neutral-500">
-              {content.description}
+              {description}. Best for {bestFor}.
             </span>
           </div>
-          <Button
-            type="button"
-            variant="secondary"
-            text="Dismiss"
-            className="mt-1 h-8 w-fit px-3"
-            onClick={() => setDismissed(true)}
-          />
+          <div className="mt-1 flex items-center gap-2">
+            <a href={learnMoreHref} target="_blank" rel="noopener noreferrer">
+              <Button
+                type="button"
+                variant="secondary"
+                text="Learn more"
+                icon={<BookOpen className="size-3.5" />}
+                className="h-8 w-fit px-3"
+              />
+            </a>
+            <Button
+              type="button"
+              variant="outline"
+              text="Dismiss"
+              className="h-8 w-fit px-3"
+              onClick={() => setDismissed(true)}
+            />
+          </div>
         </div>
       </div>
     </motion.div>
