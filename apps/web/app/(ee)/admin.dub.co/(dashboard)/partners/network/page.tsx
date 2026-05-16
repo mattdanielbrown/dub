@@ -126,6 +126,21 @@ export default function NetworkApplicationsPage() {
     return active;
   }, [searchParamsObj.country, searchParamsObj.networkStatus]);
 
+  const onSearchChange = (value: string) => {
+    const search = value.trim();
+    const hasActiveFilters =
+      Boolean(searchParamsObj.networkStatus) || Boolean(searchParamsObj.country);
+
+    if (!search || !hasActiveFilters) {
+      return;
+    }
+
+    queryParams({
+      del: ["networkStatus", "country", "page"],
+      scroll: false,
+    });
+  };
+
   const platformsMapByPartnerId = useMemo(() => {
     const map = new Map<
       string,
@@ -444,8 +459,9 @@ export default function NetworkApplicationsPage() {
             onRemove={onRemoveFilter}
           />
           <SearchBoxPersisted
-            placeholder="Search by partner email"
+            placeholder="Search by partner email or ID"
             inputClassName="w-full md:w-80"
+            onChange={onSearchChange}
           />
         </div>
         {activeFilters.length > 0 && (
