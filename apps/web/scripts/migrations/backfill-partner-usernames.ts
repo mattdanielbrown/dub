@@ -33,13 +33,17 @@ async function main() {
     const seenInBatch = new Set<string>();
 
     for (const partner of partners) {
-      let username = partner.name
-        ? slugify(partner.name)
-        : partner.email
-          ? `${slugify(partner.email.split("@")[0])}`
-          : null;
+      let username =
+        partner.name && slugify(partner.name)
+          ? slugify(partner.name)
+          : partner.email
+            ? `${slugify(partner.email.split("@")[0])}`
+            : null;
 
       if (!username) {
+        console.log(
+          `No username for ${partner.id}: ${partner.name} ${partner.email}`,
+        );
         continue;
       }
 
@@ -72,6 +76,7 @@ async function main() {
         entry.username = `${entry.username.slice(0, -5)}-${nanoid(4).toLowerCase()}`;
       }
     }
+    console.table(usernameEntries);
 
     await Promise.allSettled(
       usernameEntries.map(({ id, username }) =>
