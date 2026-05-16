@@ -8,7 +8,7 @@ const BATCH_SIZE = 100;
 async function main() {
   let totalProcessed = 0;
 
-  while (totalProcessed < 200) {
+  while (true) {
     const partners = await prisma.partner.findMany({
       where: {
         username: null,
@@ -73,20 +73,18 @@ async function main() {
       }
     }
 
-    console.log(usernameEntries);
-
-    // await Promise.allSettled(
-    //   usernameEntries.map(({ id, username }) =>
-    //     prisma.partner.update({
-    //       where: {
-    //         id,
-    //       },
-    //       data: {
-    //         username,
-    //       },
-    //     }),
-    //   ),
-    // );
+    await Promise.allSettled(
+      usernameEntries.map(({ id, username }) =>
+        prisma.partner.update({
+          where: {
+            id,
+          },
+          data: {
+            username,
+          },
+        }),
+      ),
+    );
 
     totalProcessed += partners.length;
 

@@ -351,9 +351,9 @@ function ReferralRewards() {
       </p>
       <ul className="flex flex-col gap-2">
         <ReferralRewardListItem icon={UserArrowRight}>
-          You get {NETWORK_REFERRAL_REWARD.amountInPercentage}% of your
-          referees&apos; payout fees for the first{" "}
-          {NETWORK_REFERRAL_REWARD.maxDuration} months.
+          Earn {NETWORK_REFERRAL_REWARD.amountInPercentage}% of your referred
+          partners&apos; payout fees for the first{" "}
+          {NETWORK_REFERRAL_REWARD.maxDuration} months
         </ReferralRewardListItem>
 
         <ReferralRewardListItem icon={Gift}>
@@ -362,7 +362,7 @@ function ReferralRewards() {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
           })}{" "}
-          in referral bonus earnings.
+          in referral bonus earnings
         </ReferralRewardListItem>
       </ul>
     </div>
@@ -600,14 +600,14 @@ function ReferralsPromoCard() {
         <p className="text-sm font-normal text-neutral-200">
           Bring on other partners to the Dub network, and earn from their
           activity for up to {NETWORK_REFERRAL_REWARD.maxDuration} months.{" "}
-          <Link
+          {/* <Link
             href="https://dub.co/docs/partners/quickstart"
             target="_blank"
             rel="noopener noreferrer"
             className="text-neutral-200 underline decoration-neutral-400 underline-offset-2 hover:decoration-neutral-300"
           >
             Learn more
-          </Link>
+          </Link> */}
         </p>
       </div>
     </div>
