@@ -1,17 +1,25 @@
 "use client";
 
+import { getPlanCapabilities } from "@/lib/plan-capabilities";
 import useGroup from "@/lib/swr/use-group";
+import useWorkspace from "@/lib/swr/use-workspace";
 import type { GroupProps, RewardProps } from "@/lib/types";
 import { DEFAULT_PARTNER_GROUP } from "@/lib/zod/schemas/groups";
 import { useRewardHistorySheet } from "@/ui/activity-logs/reward-history-sheet";
-import { REWARD_EVENTS } from "@/ui/partners/constants";
+import { usePartnersUpgradeModal } from "@/ui/partners/partners-upgrade-modal";
 import { ProgramRewardDescription } from "@/ui/partners/program-reward-description";
 import {
   RewardSheet,
   useRewardSheet,
 } from "@/ui/partners/rewards/add-edit-reward-sheet";
+import { REWARD_EVENT_ICON } from "@/ui/partners/rewards/reward-event-icon";
 import { EventType } from "@dub/prisma/client";
-import { Button, TimestampTooltip, useRouterStuff } from "@dub/ui";
+import {
+  Button,
+  TimestampTooltip,
+  TooltipContent,
+  useRouterStuff,
+} from "@dub/ui";
 import { cn, formatDate } from "@dub/utils";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -32,6 +40,10 @@ const REWARD_EVENT_DESCRIPTIONS: Record<
   click: {
     title: "Click reward",
     description: "Reward for traffic and reach",
+  },
+  referral: {
+    title: "Partner referral reward",
+    description: "Reward when partners refer more partners",
   },
 };
 
@@ -54,9 +66,12 @@ export function GroupRewards() {
   }, [searchParams]);
 
   const rewards =
-    [group?.clickReward, group?.leadReward, group?.saleReward].filter(
-      Boolean,
-    ) ?? [];
+    [
+      group?.clickReward,
+      group?.leadReward,
+      group?.saleReward,
+      group?.referralReward,
+    ].filter(Boolean) ?? [];
 
   const currentReward = rewardSheetState.rewardId
     ? rewards.find((r) => r?.id === rewardSheetState.rewardId)
@@ -82,9 +97,9 @@ export function GroupRewards() {
       <div className="flex flex-col gap-6">
         {loading || !group ? (
           <>
-            <RewardSkeleton />
-            <RewardSkeleton />
-            <RewardSkeleton />
+            {Array.from({ length: 4 }).map((_, index) => (
+              <RewardSkeleton key={index} />
+            ))}
           </>
         ) : (
           <>
@@ -93,6 +108,14 @@ export function GroupRewards() {
             <RewardItem
               reward={group.clickReward}
               event="click"
+              group={group}
+            />
+
+            <hr className="border-neutral-200" />
+
+            <RewardItem
+              reward={group.referralReward}
+              event="referral"
               group={group}
             />
           </>
@@ -133,7 +156,11 @@ const RewardItem = ({
   group: GroupProps;
 }) => {
   const { slug } = useParams();
+  const { plan } = useWorkspace();
   const { queryParams } = useRouterStuff();
+  const { canCreateReferralReward } = getPlanCapabilities(plan);
+  const { partnersUpgradeModal, setShowPartnersUpgradeModal } =
+    usePartnersUpgradeModal();
 
   const { RewardSheet, setIsOpen } = useRewardSheet({
     event,
@@ -149,18 +176,21 @@ const RewardItem = ({
     reward: reward ?? null,
   });
 
-  const Icon = REWARD_EVENTS[event].icon;
+  const Icon = REWARD_EVENT_ICON[event];
   const As = reward ? Link : "div";
+
+  const lastUpdatedDate = finalActivityLogDate ?? reward?.updatedAt;
 
   return (
     <>
+      {partnersUpgradeModal}
       {RewardSheet}
       {rewardHistorySheet}
       <As
         href={
           reward
             ? `/${slug}/program/groups/${group.slug}/rewards?rewardId=${reward.id}`
-            : ""
+            : "#"
         }
         scroll={false}
         className={cn(
@@ -186,16 +216,16 @@ const RewardItem = ({
 
                 <div className="flex items-center gap-1 text-xs font-medium text-neutral-500">
                   <span>Last updated </span>
-                  {!finalActivityLogDate ? (
+                  {!lastUpdatedDate ? (
                     <div className="h-3 w-16 animate-pulse rounded bg-neutral-100" />
                   ) : (
                     <TimestampTooltip
-                      timestamp={finalActivityLogDate ?? reward.updatedAt}
+                      timestamp={lastUpdatedDate}
                       side="left"
                       rows={["local", "utc", "unix"]}
                     >
                       <span>
-                        {formatDate(finalActivityLogDate, {
+                        {formatDate(lastUpdatedDate, {
                           month: "short",
                           day: "numeric",
                           year: "numeric",
@@ -256,13 +286,23 @@ const RewardItem = ({
             />
           ) : (
             <div className="flex flex-col-reverse items-center gap-2 md:flex-row">
-              {group.slug !== DEFAULT_PARTNER_GROUP.slug && (
-                <CopyDefaultRewardButton event={event} />
-              )}
+              {group.slug !== DEFAULT_PARTNER_GROUP.slug &&
+                (event !== "referral" || canCreateReferralReward) && (
+                  <CopyDefaultRewardButton event={event} />
+                )}
               <Button
                 text="Create"
                 variant="primary"
                 className="h-9 w-full rounded-lg md:w-fit"
+                disabledTooltip={
+                  event === "referral" && !canCreateReferralReward ? (
+                    <TooltipContent
+                      title="Referral rewards are only available on the Advanced plan and above."
+                      cta="Upgrade to Advanced"
+                      onClick={() => setShowPartnersUpgradeModal(true)}
+                    />
+                  ) : undefined
+                }
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
